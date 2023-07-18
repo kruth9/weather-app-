@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/we.css' %}">
+    <title>Document</title>
+</head>
+<body>
+
+    <!-- MAIN --> 
+
+    <div class="card">
+
+        <!-- SEARCH BOX -->
+
+        <div class="search">
+            <input type="text" placeholder="enter city name" spellcheck="false">
+            <button><img src="{% static 'images/search.png' %}"></button>
+        </div>
+
+        <!-- ERROR HANDLER -->
+
+        <div class="error">
+            <p>Invalid city name</p>
+        </div>
+
+        <!-- WEATHER INFO  -->
+
+        <div class="weather">
+            <img src="{% static 'images/rain.png' %}" class="icon">
+            <h1 class="temp">22°C</h1>
+            <h2 class="city">New York</h2>
+            <div class="details">
+                <div class="col">
+                    <img src="{% static 'images/humidity.png' %}">
+                    <div>
+                        <p class="humidity">50%</p>
+                        <p>humidity</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <img src="{% static 'images/wind.png' %}">
+                    <div>
+                        <p class="wind">20 km/h</p>
+                        <p>wind speed</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- API FUNCTION IN JS -->
+
+    <script>
+
+        const apikey =  "a141af784b5b62437bda1ffdcc89ed4f";
+        const apiurl = "https://api.openweathermap.org/data/2.5/weather?&units=metric&q=";
+
+        const searchBox = document.querySelector(".search input");
+        const searchBtn = document.querySelector(".search button");
+        const icon = document.querySelector(".icon");
+
+
+        async function checkweather(city){
+            const response = await fetch(apiurl + city + `&appid=${apikey}`);
+
+            if(response.status == 404){
+                document.querySelector(".error").style.display = "block";
+                document.querySelector(".weather").style.display = "none";
+            }
+            else{
+            var data = await response.json();
+
+            console.log(data)
+
+            document.querySelector(".city").innerHTML = data.name;
+            document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C";
+            document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+            document.querySelector(".wind").innerHTML = data.wind.speed + " km/h";
+
+            if(data.weather[0].main == "Clouds"){
+                icon.src = "{% static 'images/clouds.png' %}";
+            }
+            else if(data.weather[0].main == "Clear"){
+                icon.src = "{% static 'images/clear.png' %}";
+
+            }
+            else if(data.weather[0].main == "Rain"){
+                icon.src = "{% static 'images/rain.png' %}";
+
+            }
+            else if(data.weather[0].main == "Drizzle"){
+                icon.src = "{% static 'images/drizzle.png' %}";
+
+            }
+            else if(data.weather[0].main == "Mist"){
+                icon.src = "{% static 'images/mist.png' %}";
+
+            }
+
+            document.querySelector(".weather").style.display = "block"
+            document.querySelector(".error").style.display = "none"
+            }
+        }
+
+        // ANOTHER METHOD TO SEND DATA IN SEARCH BOX
+        // if (city !== "") {
+        //     checkweather(city);
+        // }
+        // searchBtn.addEventListener("click", ()=>{
+            
+        //     checkweather(searchBox.value);
+        // })
+
+        function handleSearch() {
+            const city = searchBox.value;
+            checkweather(city);
+        }
+
+        searchBtn.addEventListener("click", handleSearch);
+
+        searchBox.addEventListener("keyup", (event) => {
+        if (event.keyCode === 13) {
+            handleSearch();
+        }
+        });
+
+        checkweather();
+
+    </script>
+    
+</body>
+</html>
